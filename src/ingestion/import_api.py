@@ -23,9 +23,18 @@ for n in noms:
             response = requests.get(url_base+n+f"?date>{int(y)-1}-12-31&date<{int(y)+1}-01-01")
         else:
             response = requests.get(url_base+n+"?year="+y)
-        time.sleep(0.4)
+        time.sleep(0.33)
 
         enregistrement_donnees(niveau, response.json(), n, y, True)
 
 
+# Partie pour les tables n'ayant pas de dates : championship_drivers, championship_teams, drivers, session_result et starting_grid
+tables=["championship_drivers", "championship_teams", "drivers", "session_result", "starting_grid", "race_control"]
 
+for t in tables:
+    verification_dossier_parents(t, niveau)
+
+    response = requests.get(url_base+t)
+    time.sleep(0.33)
+
+    enregistrement_donnees(niveau, response.json(), t)
