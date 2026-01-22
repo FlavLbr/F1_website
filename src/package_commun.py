@@ -13,12 +13,16 @@ def verification_dossier_parents(nom_table,partie):
         os.mkdir(f"{lien}/{partie}/{nom_table}")
 
 # Fonction qui permet d'enregister la données dans le dossier
-def enregistrement_donnees(partie,fichier_json,nom_table, annee=None, is_annee=False):
-    if is_annee:
-        if not exists(f"{lien}/{partie}/{nom_table}/{annee}/"):
-            os.mkdir(f"{lien}/{partie}/{nom_table}/{annee}/")
-        with open(f"{lien}/{partie}/{nom_table}/{annee}/{nom_table}_{annee}.json","w") as fichier:
-            json.dump(fichier_json,fichier)
+def enregistrement_donnees(partie,fichier,nom_table, annee=None, is_annee=False):
+    if partie=="raw":
+        if is_annee:
+            if not exists(f"{lien}/{partie}/{nom_table}/{annee}/"):
+                os.mkdir(f"{lien}/{partie}/{nom_table}/{annee}/")
+            with open(f"{lien}/{partie}/{nom_table}/{annee}/{nom_table}_{annee}.json","w") as fichier:
+                json.dump(fichier,fichier)
+        else:
+            with open(f"{lien}/{partie}/{nom_table}/{nom_table}.json","w") as fichier:
+                json.dump(fichier,fichier)
+
     else:
-        with open(f"{lien}/{partie}/{nom_table}/{nom_table}.json","w") as fichier:
-            json.dump(fichier_json,fichier)
+        fichier.to_parquet(f"{lien}/{partie}/{nom_table}/{nom_table}.parquet", compression="ZSTD")
