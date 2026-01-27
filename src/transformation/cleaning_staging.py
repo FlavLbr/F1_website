@@ -29,6 +29,7 @@ drivers2 = table[["meeting_key","driver_number", "full_name","name_acronym","tea
 verification_dossier_parents("drivers", niveau)
 enregistrement_donnees(niveau,drivers2,"drivers")
 
+
 # création des tables country, circuit et meeting
 meet=lecture_fichier_json("meetings",True)
 
@@ -43,3 +44,13 @@ enregistrement_donnees(niveau,circuits,"circuits")
 meetings = meet.loc[meet["meeting_name"].str.contains("Grand Prix"),["meeting_key","meeting_name","meeting_official_name","circuit_key","gmt_offset","date_start","date_end","year"]]
 verification_dossier_parents("meetings", niveau)
 enregistrement_donnees(niveau,meetings,"meetings")
+
+# Création de la table race_control
+race_control=lecture_fichier_json("race_control")
+race_control=race_control.loc[((race_control["category"].isin(["Flag","SafetyCar"]))&(~race_control["flag"].isin(["BLUE","BLACK AND WHITE"])))|((race_control["category"]=="Other") & (race_control["message"].str.contains("SECOND TIME PENALTY")) & ~race_control["message"].str.contains("PENALTY SERVED")),["session_key","lap_number","category","flag","scope","sector","qualifying_phase","message"]].drop_duplicates()
+race_control["driver_number"] = race_control["message"].str.extract(r'PENALTY FOR CAR ([0-9]*) ').astype('Int64') # il faut créer pour le numéro du pilote lors des penalites
+race_control["lap_number"] = race_control["lap_number"].astype('Int64')
+race_control["sector"] = race_control["sector"].astype('Int64')
+race_control["qualifying_phase"] = race_control["qualifying_phase"].astype('Int64')
+verification_dossier_parents("race_control", niveau)
+enregistrement_donnees(niveau,race_control,"race_control")
