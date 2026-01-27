@@ -3,6 +3,7 @@ import json
 from genericpath import exists
 import os
 import time
+import pandas as pd
 lien = "/workspaces/F1_website/data"
 url_base = "https://api.openf1.org/v1/"
 
@@ -26,3 +27,18 @@ def enregistrement_donnees(partie,fichier,nom_table, annee=None, is_annee=False)
 
     else:
         fichier.to_parquet(f"{lien}/{partie}/{nom_table}/{nom_table}.parquet", compression="ZSTD")
+
+def lecture_fichier_json(nom_table, is_annee=False):
+    if is_annee:
+        path_table=os.walk(f"/workspaces/F1_website/data/raw/{nom_table}")
+        df=pd.DataFrame()
+        for fichiers in path_table:
+            for fichier in fichiers[2]:
+                with open(fichiers[0]+"/"+fichier) as f:
+                    data = json.load(f)
+                    df=pd.concat([df,pd.json_normalize(data)])
+    else:
+        with open(f"/workspaces/F1_website/data/raw/{nom_table}/{nom_table}.json") as f:
+            df=pd.json_normalize(json.load(f))
+    
+    return df
